@@ -5,7 +5,10 @@ Tests various input formats and validates outputs.
 """
 
 import sys
-sys.path.insert(0, '/home/runner/work/email-draft-saver/email-draft-saver')
+import os
+
+# Add parent directory to path to import the module
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from email_draft_bot import EmailDraftBot
 
@@ -109,6 +112,68 @@ def test_custom_message():
     return True
 
 
+def test_email_without_name():
+    """Test handling of email without name."""
+    print("\nTest 7: Email without name")
+    bot = EmailDraftBot()
+    
+    text = "contact@example.com"
+    draft = bot.create_draft_from_text(text)
+    
+    assert draft['to'] == 'contact@example.com', f"Expected email 'contact@example.com', got {draft['to']}"
+    assert draft['extracted_name'] == 'Unknown', f"Expected 'Unknown' name, got {draft['extracted_name']}"
+    assert 'Dear Sir/Madam,' in draft['body'], "Expected generic greeting"
+    
+    print("✓ Email without name test passed")
+    return True
+
+
+def test_multi_part_tld():
+    """Test email with multi-part TLD."""
+    print("\nTest 8: Email with multi-part TLD")
+    bot = EmailDraftBot()
+    
+    text = "john@company.co.uk name = John"
+    draft = bot.create_draft_from_text(text)
+    
+    assert draft['to'] == 'john@company.co.uk', f"Expected email 'john@company.co.uk', got {draft['to']}"
+    assert draft['extracted_name'] == 'John', f"Expected name 'John', got {draft['extracted_name']}"
+    
+    print("✓ Multi-part TLD test passed")
+    return True
+
+
+def test_empty_input():
+    """Test handling of empty input."""
+    print("\nTest 9: Empty input handling")
+    bot = EmailDraftBot()
+    
+    text = ""
+    draft = bot.create_draft_from_text(text)
+    
+    assert draft['to'] == 'recipient@example.com', f"Expected default email, got {draft['to']}"
+    assert draft['extracted_name'] == 'Unknown', f"Expected 'Unknown' name, got {draft['extracted_name']}"
+    
+    print("✓ Empty input test passed")
+    return True
+
+
+def test_text_without_email():
+    """Test text without email."""
+    print("\nTest 10: Text without email")
+    bot = EmailDraftBot()
+    
+    text = "name = Sarah Johnson looking for opportunities"
+    draft = bot.create_draft_from_text(text)
+    
+    assert draft['to'] == 'recipient@example.com', f"Expected default email, got {draft['to']}"
+    assert draft['extracted_name'] == 'Sarah Johnson', f"Expected 'Sarah Johnson', got {draft['extracted_name']}"
+    assert 'Dear Sarah,' in draft['body'], "Expected personalized greeting with first name"
+    
+    print("✓ Text without email test passed")
+    return True
+
+
 def run_all_tests():
     """Run all tests."""
     print("="*60)
@@ -122,6 +187,10 @@ def run_all_tests():
         test_meeting_context,
         test_company_extraction,
         test_custom_message,
+        test_email_without_name,
+        test_multi_part_tld,
+        test_empty_input,
+        test_text_without_email,
     ]
     
     passed = 0

@@ -108,7 +108,7 @@ The chatbot is flexible and can understand various input formats:
 
 ## Examples
 
-### Example 1: Job Application
+### Example 1: Basic Email
 **Input:**
 ```
 ravi@amazon.com name = Ravi
@@ -117,7 +117,7 @@ ravi@amazon.com name = Ravi
 **Output:**
 ```
 To: ravi@amazon.com
-Subject: Professional Communication
+Subject: Professional Inquiry - Amazon
 
 Dear Ravi,
 
@@ -164,6 +164,26 @@ Subject: Interview Follow-up
 Dear Robert,
 
 Thank you for taking the time to meet with me.
+
+Looking forward to hearing from you.
+
+Best regards
+```
+
+### Example 4: Multi-part TLD Support
+**Input:**
+```
+james@company.co.uk name = James meeting request
+```
+
+**Output:**
+```
+To: james@company.co.uk
+Subject: Meeting Request - Company
+
+Dear James,
+
+I would like to schedule a meeting with you to discuss a professional matter.
 
 Looking forward to hearing from you.
 

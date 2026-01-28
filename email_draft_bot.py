@@ -12,12 +12,17 @@ from typing import Dict, Optional, Tuple
 class EmailDraftBot:
     """Chatbot for creating professional email drafts from text."""
     
+    # Configuration constants
+    MIN_MESSAGE_LENGTH = 20  # Minimum length for custom message to be included
+    MIN_MEANINGFUL_WORDS = 4  # Minimum words to consider text meaningful
+    
     def __init__(self):
         self.draft = {}
         
     def extract_email(self, text: str) -> Optional[str]:
         """Extract email address from text."""
-        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        # Support multi-part TLDs like .co.uk, .com.au
+        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}(?:\.[A-Z|a-z]{2,})?\b'
         match = re.search(email_pattern, text)
         return match.group(0) if match else None
     
@@ -31,7 +36,8 @@ class EmailDraftBot:
             name = match.group(1).strip()
             # Stop at common words that indicate end of name
             stop_words = ['applying', 'for', 'position', 'at', 'regarding', 'about', 
-                         'meeting', 'interview', 'role', 'job', 'from', 'to']
+                         'meeting', 'interview', 'role', 'job', 'from', 'to', 'looking',
+                         'seeking', 'interested', 'want', 'would', 'like']
             name_parts = []
             for word in name.split():
                 if word.lower() in stop_words:
@@ -73,15 +79,15 @@ class EmailDraftBot:
                         'recruiter', 'hr', 'ceo', 'cto', 'cfo', 'position', 'role',
                         'job', 'opportunity', 'interview', 'application', 'meeting']
         
-        text_lower = text.lower()
+        text_lowercase = text.lower()
         for keyword in role_keywords:
-            if keyword in text_lower:
+            if keyword in text_lowercase:
                 # Try to find the role context
-                if 'application' in text_lower or 'applying' in text_lower:
+                if 'application' in text_lowercase or 'applying' in text_lowercase:
                     role = 'job application'
-                elif 'interview' in text_lower:
+                elif 'interview' in text_lowercase:
                     role = 'interview'
-                elif 'meeting' in text_lower:
+                elif 'meeting' in text_lowercase:
                     role = 'meeting'
                 elif keyword in ['recruiter', 'hr']:
                     role = 'recruitment'
@@ -154,7 +160,7 @@ class EmailDraftBot:
         # Remove if it's just leftover fragments
         if clean_text:
             words = clean_text.lower().split()
-            if len(words) < 4 or all(word in ['for', 'at', 'the', 'a', 'an', 'to', 'and', 'or', 'but', 'of', 'in', 'on'] for word in words):
+            if len(words) < self.MIN_MEANINGFUL_WORDS or all(word in ['for', 'at', 'the', 'a', 'an', 'to', 'and', 'or', 'but', 'of', 'in', 'on'] for word in words):
                 clean_text = ""
         
         # Generate appropriate body based on context
@@ -163,22 +169,22 @@ class EmailDraftBot:
         if role == 'job application' and company:
             body_parts.append(f"I am writing to express my interest in opportunities at {company}.")
             body_parts.append("")
-            if clean_text and len(clean_text) > 20:
+            if clean_text and len(clean_text) > self.MIN_MESSAGE_LENGTH:
                 body_parts.append(clean_text)
                 body_parts.append("")
         elif role == 'interview':
             body_parts.append("Thank you for taking the time to meet with me.")
             body_parts.append("")
-            if clean_text and len(clean_text) > 20:
+            if clean_text and len(clean_text) > self.MIN_MESSAGE_LENGTH:
                 body_parts.append(clean_text)
                 body_parts.append("")
         elif role == 'meeting':
             body_parts.append("I would like to schedule a meeting with you to discuss a professional matter.")
             body_parts.append("")
-            if clean_text and len(clean_text) > 20:
+            if clean_text and len(clean_text) > self.MIN_MESSAGE_LENGTH:
                 body_parts.append(clean_text)
                 body_parts.append("")
-        elif clean_text and len(clean_text) > 20:
+        elif clean_text and len(clean_text) > self.MIN_MESSAGE_LENGTH:
             body_parts.append(clean_text)
             body_parts.append("")
         else:
