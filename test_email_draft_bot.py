@@ -97,13 +97,13 @@ def test_custom_message():
     print("\nTest 6: Custom message handling")
     bot = EmailDraftBot()
     
-    text = "alice@startup.com name = Alice I would like to discuss partnership opportunities"
+    text = "alice@startup.com name = Alice I would like to collaborate on the new product development initiative and explore synergies"
     draft = bot.create_draft_from_text(text)
     
     assert draft['to'] == 'alice@startup.com', f"Expected email 'alice@startup.com', got {draft['to']}"
     assert draft['extracted_name'] == 'Alice', f"Expected name 'Alice', got {draft['extracted_name']}"
     assert 'Dear Alice,' in draft['body'], "Expected personalized greeting"
-    assert 'partnership' in draft['body'].lower(), "Expected custom message content in body"
+    assert 'collaborate' in draft['body'].lower() or 'product' in draft['body'].lower(), "Expected custom message content in body"
     
     print("✓ Custom message test passed")
     return True

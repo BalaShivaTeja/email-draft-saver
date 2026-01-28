@@ -131,20 +131,18 @@ class EmailDraftBot:
         
         # Remove common role/job keywords that were already used for context
         role_patterns = [
-            r'applying\s+for\s+\w+\s+\w+\s+position',
-            r'applying\s+for\s+\w+\s+position',
-            r'applying\s+for\s+position',
-            r'application\s+for\s+\w+\s+\w+\s+position',
-            r'application\s+for\s+\w+\s+position',
-            r'application\s+for\s+position',
-            r'regarding\s+\w+\s+\w+\s+position',
-            r'regarding\s+\w+\s+position',
-            r'about\s+\w+\s+\w+\s+position',
-            r'about\s+\w+\s+position',
-            r'for\s+\w+\s+\w+\s+position',
-            r'for\s+\w+\s+position',
+            r'applying\s+for\s+[a-zA-Z\s]+position',
+            r'application\s+for\s+[a-zA-Z\s]+position',
+            r'regarding\s+[a-zA-Z\s]+position',
+            r'about\s+[a-zA-Z\s]+position',
+            r'for\s+[a-zA-Z\s]+position',
+            r'applying\s+for',
+            r'application\s+for',
             r'interview\s+follow\s+up',
+            r'meeting\s+request\s+to\s+discuss\s+[a-zA-Z\s]+',
             r'meeting\s+request',
+            r'to\s+discuss\s+[a-zA-Z\s]+partnership',
+            r'to\s+discuss\s+[a-zA-Z\s]+',
         ]
         
         for pattern in role_patterns:
@@ -154,8 +152,10 @@ class EmailDraftBot:
         clean_text = ' '.join(clean_text.split()).strip()
         
         # Remove if it's just leftover fragments
-        if clean_text and len(clean_text) < 20 and any(word in clean_text.lower() for word in ['for', 'at', 'the', 'a', 'an']):
-            clean_text = ""
+        if clean_text:
+            words = clean_text.lower().split()
+            if len(words) < 4 or all(word in ['for', 'at', 'the', 'a', 'an', 'to', 'and', 'or', 'but', 'of', 'in', 'on'] for word in words):
+                clean_text = ""
         
         # Generate appropriate body based on context
         body_parts = [greeting, ""]
